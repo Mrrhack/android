@@ -189,12 +189,20 @@ class VaultItemListingViewModel @Inject constructor(
                 handleMasterPasswordFido2VerificationSubmit(action)
             }
 
-            VaultItemListingsAction.DismissFido2PasswordVerificationDialogClick -> {
-                handleDismissFido2PasswordVerificationDialogClick()
-            }
-
             is VaultItemListingsAction.RetryFido2PasswordVerificationClick -> {
                 handleRetryFido2PasswordVerificationClick(action)
+            }
+
+            VaultItemListingsAction.DismissFido2VerificationDialogClick -> {
+                handleDismissFido2VerificationDialogClick()
+            }
+
+            is VaultItemListingsAction.PINFido2VerificationSubmit -> {
+                handlePINFido2VerificationSubmit(action)
+            }
+
+            is VaultItemListingsAction.RetryFido2PINVerificationClick -> {
+                handleRetryFido2PINVerificationClick(action)
             }
 
             is VaultItemListingsAction.BackClick -> handleBackClick()
@@ -373,7 +381,7 @@ class VaultItemListingViewModel @Inject constructor(
         }
     }
 
-    private fun handleDismissFido2PasswordVerificationDialogClick() {
+    private fun handleDismissFido2VerificationDialogClick() {
         showFido2ErrorDialog()
     }
 
@@ -1393,6 +1401,26 @@ data class VaultItemListingState(
             val message: Text,
             val selectedCipherId: String,
         ) : DialogState()
+
+        /**
+         * Represents a dialog to prompt the user for their PIN as part of the FIDO 2
+         * user verification flow.
+         */
+        @Parcelize
+        data class Fido2PINPrompt(
+            val selectedCipherId: String,
+        ) : DialogState()
+
+        /**
+         * Represents a dialog to alert the user that their PIN for the FIDO 2 user
+         * verification flow was incorrect and to retry.
+         */
+        @Parcelize
+        data class Fido2PINError(
+            val title: Text?,
+            val message: Text,
+            val selectedCipherId: String,
+        ) : DialogState()
     }
 
     /**
@@ -1780,14 +1808,29 @@ sealed class VaultItemListingsAction {
     ) : VaultItemListingsAction()
 
     /**
-     * Click to dismiss the FIDO 2 password verification dialog.
+     * Click to dismiss the FIDO 2 password or PIN verification dialog.
      */
-    data object DismissFido2PasswordVerificationDialogClick : VaultItemListingsAction()
+    data object DismissFido2VerificationDialogClick : VaultItemListingsAction()
 
     /**
      * Click to retry the FIDO 2 password verification.
      */
     data class RetryFido2PasswordVerificationClick(
+        val selectedCipherId: String,
+    ) : VaultItemListingsAction()
+
+    /**
+     * Click to submit the PIN for FIDO 2 verification.
+     */
+    data class PINFido2VerificationSubmit(
+        val pin: String,
+        val selectedCipherId: String,
+    ) : VaultItemListingsAction()
+
+    /**
+     * Click to retry the FIDO 2 PIN verification.
+     */
+    data class RetryFido2PINVerificationClick(
         val selectedCipherId: String,
     ) : VaultItemListingsAction()
 
